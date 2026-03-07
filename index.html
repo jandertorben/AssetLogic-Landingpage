@@ -750,7 +750,7 @@
       <a class="nav-link" href="#roi">ROI</a>
       <a class="nav-link" href="#tech">Technologie</a>
     </div>
-    <a class="nav-cta" href="https://jandertorben.github.io/AssetLogic/" target="_blank" rel="noopener">Demo starten</a>
+    <a class="nav-cta" href="#" onclick="openDemoModal(event)">Demo starten</a>
   </div>
 </nav>
 
@@ -1113,9 +1113,102 @@
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  // All content visible by default — no broken animations
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  // Smooth scroll (skip modal triggers)
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
-      const t = document.querySelector(a.getAttribute('href'));
-      if (t) { e.preventDefault(); t.scrollIntoView({ behav
+      const href = a.getAttribute('href');
+      if (href === '#') return;
+      const t = document.querySelector(href);
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+
+  // Nav hide on scroll
+  let ly = 0;
+  window.addEventListener('scroll', () => {
+    const n = document.querySelector('nav'), y = window.scrollY;
+    n.style.transform = y > 80 && y > ly ? 'translateY(-100%)' : '';
+    ly = y;
+  }, { passive: true });
+</script>
+
+<!-- ═══ PASSWORD MODAL ═══ -->
+<div id="demoModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(11,31,58,0.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#FFFFFF;border-radius:20px;padding:40px 36px;max-width:400px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.45);position:relative;text-align:center;">
+    <button onclick="closeDemoModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:20px;color:#8993A4;line-height:1;padding:4px;">✕</button>
+    <div style="width:56px;height:56px;background:#0052CC;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 20px;">🔒</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0052CC;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif;">Demo-Zugang</div>
+    <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:#172B4D;margin-bottom:8px;letter-spacing:-0.3px;">Passwort eingeben</h2>
+    <p style="font-size:14px;color:#5E6C84;margin-bottom:28px;line-height:1.6;font-family:'Plus Jakarta Sans',sans-serif;">Dieser Demo-Bereich ist passwortgeschützt. Bitte geben Sie das Ihnen mitgeteilte Passwort ein.</p>
+    <div style="position:relative;margin-bottom:16px;">
+      <input id="demoPassword" type="password" placeholder="Passwort eingeben"
+        onkeydown="if(event.key==='Enter')checkPassword()"
+        style="width:100%;padding:14px 48px 14px 16px;border:2px solid #DFE1E6;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:500;color:#172B4D;outline:none;transition:border-color 0.15s;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#0052CC'" onblur="this.style.borderColor='#DFE1E6'"/>
+      <button onclick="togglePwVis()" id="pwToggle" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#8993A4;">👁</button>
+    </div>
+    <div id="demoError" style="display:none;font-size:13px;font-weight:600;color:#DE350B;background:#FFEBE6;border:1px solid rgba(222,53,11,0.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-family:'Plus Jakarta Sans',sans-serif;">Falsches Passwort. Bitte erneut versuchen.</div>
+    <button onclick="checkPassword()" style="width:100%;background:#0052CC;color:white;padding:14px;border-radius:10px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;box-shadow:0 6px 24px rgba(0,82,204,0.35);transition:background 0.15s;" onmouseover="this.style.background='#002966'" onmouseout="this.style.background='#0052CC'">Demo öffnen →</button>
+    <p style="font-size:11px;color:#8993A4;margin-top:16px;font-family:'Plus Jakarta Sans',sans-serif;">Kein Zugang? <a href="mailto:torbenjander@icloud.com" style="color:#0052CC;font-weight:600;text-decoration:none;">Demo anfragen</a></p>
+  </div>
+</div>
+
+<style>
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+</style>
+
+<script>
+  var DEMO_URL = 'https://jandertorben.github.io/AssetLogic/';
+  var DEMO_PW  = 'AS_Pierre';
+
+  function openDemoModal(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    var modal = document.getElementById('demoModal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('demoError').style.display = 'none';
+    document.getElementById('demoPassword').value = '';
+    document.getElementById('demoPassword').style.borderColor = '#DFE1E6';
+    setTimeout(function(){ document.getElementById('demoPassword').focus(); }, 150);
+  }
+
+  function closeDemoModal() {
+    document.getElementById('demoModal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function checkPassword() {
+    var input = document.getElementById('demoPassword').value;
+    var errorEl = document.getElementById('demoError');
+    var inputEl = document.getElementById('demoPassword');
+    if (input === DEMO_PW) {
+      closeDemoModal();
+      window.open(DEMO_URL, '_blank', 'noopener,noreferrer');
+    } else {
+      errorEl.style.display = 'block';
+      inputEl.style.borderColor = '#DE350B';
+      inputEl.style.animation = 'shake 0.4s ease';
+      setTimeout(function(){ inputEl.style.animation = ''; }, 400);
+      inputEl.select();
+    }
+  }
+
+  function togglePwVis() {
+    var inp = document.getElementById('demoPassword');
+    var btn = document.getElementById('pwToggle');
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁'; }
+  }
+
+  document.getElementById('demoModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDemoModal();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDemoModal();
+  });
+</script>
+
+</body>
+</html>
